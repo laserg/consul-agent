@@ -1,0 +1,58 @@
+version: '3'
+services:
+  consul:
+    image: consul:1.15.4
+    command: consul agent -server -dev -client=0.0.0.0 -ui -bootstrap -log-level warn
+    ports:
+      - "8400:8400"
+      - "8500:8500"
+      - "8600:53/udp"
+    networks:
+      - traefik_network
+
+  reverse-proxy:
+    image: traefik:v2.5
+    command:
+      - "--providers.consulCatalog.endpoint.address=consul:8500"
+      - "--providers.consulCatalog.exposedByDefault=false"
+      - "--providers.consulCatalog.prefix=traefik"
+      - "--entrypoints.http.address=:80"
+      - "--api.insecure=true"
+    ports:
+      - "8080:8080"
+      - "8081:80"
+    depends_on:
+      - consul
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.reverse.rule=Host(`localhost`)"
+    networks:
+      - traefik_network
+
+  registrator:
+    build:
+      context: ../../
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - AGENT_DOCKER_HOST=unix:///var/run/docker.sock
+      - AGENT_CONSUL_HOST=consul://${PROXY_SERVER_IP}:8500
+      - AGENT_POLLING_INTERVAL=60
+      - AGENT_BIND_IP=${PROXY_SERVER_IP}
+      - AGENT_CONSUL_PREFIX=consul.
+    networks:
+      - traefik_network
+
+  web-server:
+    image: crccheck/hello-world
+    ports:
+      - "8000:8000"
+    labels:
+      - consul.traefik.enable=true
+      - consul.traefik.http.services.web-service0.loadbalancer.server.port=8000
+      - consul.traefik.http.routers.web-service0.rule=Host(`localhost0`) && PathPrefix(`/`)
+    networks:
+      - traefik_network
+
+networks:
+  traefik_network:

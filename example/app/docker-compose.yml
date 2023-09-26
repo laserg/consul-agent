@@ -1,0 +1,29 @@
+version: '3'
+services:
+  registrator:
+    build:
+      context: ../../
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - AGENT_DOCKER_HOST=unix:///var/run/docker.sock
+      - AGENT_CONSUL_HOST=consul://${PROXY_SERVER_IP}:8500
+      - AGENT_POLLING_INTERVAL=60
+      - AGENT_BIND_IP=${APP_SERVER_IP}
+      - AGENT_CONSUL_PREFIX=consul.
+    networks:
+      - traefik_network
+
+  web-server:
+    image: crccheck/hello-world
+    ports:
+      - "8001:8000"
+    labels:
+      - consul.traefik.enable=true
+      - consul.traefik.http.services.web-service1.loadbalancer.server.port=8001
+      - consul.traefik.http.routers.web-service1.rule=Host(`localhost1`) && PathPrefix(`/`)
+    networks:
+      - traefik_network
+
+networks:
+  traefik_network:
