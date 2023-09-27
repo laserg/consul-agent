@@ -20,7 +20,7 @@ public class Registry {
     newService.setTags(service.getTags());
 
     NewService.Check httpCheck = new NewService.Check();
-    httpCheck.setHttp("http://" + service.getIp() + ":" + service.getPort());
+    httpCheck.setTcp(service.getIp() + ":" + service.getPort());
     httpCheck.setInterval("10s");
     newService.setCheck(httpCheck);
 
