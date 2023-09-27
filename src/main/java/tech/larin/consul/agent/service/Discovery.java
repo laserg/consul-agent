@@ -21,7 +21,9 @@ public class Discovery {
 
     try {
       return dockerClient.listContainersCmd().withShowAll(true).exec().stream()
-          .map(container -> mapper.map(container, configuration.getBindIp()))
+          .map(
+              container ->
+                  mapper.map(container, configuration.getBindIp(), configuration.getBindPorts()))
           .collect(Collectors.toList());
     } catch (Exception e) {
       log.error("Error while containers scanning", e);
