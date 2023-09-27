@@ -4,6 +4,7 @@ import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.model.ContainerPort;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -24,6 +25,7 @@ public interface DockerServiceMapper {
   default List<Integer> mapContainerPorts(Container container) {
     return Arrays.stream(container.ports)
         .map(ContainerPort::getPublicPort)
+        .filter(Objects::nonNull)
         .collect(Collectors.toList());
   }
 }
