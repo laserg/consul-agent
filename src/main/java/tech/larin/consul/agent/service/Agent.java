@@ -13,6 +13,8 @@ import org.springframework.stereotype.Component;
 import tech.larin.consul.agent.configuration.AgentConfigurationProperties;
 import tech.larin.consul.agent.domain.ConsulService;
 import tech.larin.consul.agent.domain.DockerService;
+import tech.larin.consul.agent.domain.DockerService.Port.Protocol;
+import tech.larin.consul.agent.domain.DockerService.State;
 
 @Slf4j
 @Component
@@ -32,13 +34,17 @@ public class Agent {
 
   private void registerServicesWithConsul() {
     discovery.services().stream()
+        .filter(service -> Objects.equals(State.RUNNING, service.getState()))
         .flatMap(
-            service -> service.getPorts().stream().map(port -> buildConsulService(service, port)))
+            service ->
+                service.getPorts().stream()
+                    .filter(port -> Objects.equals(Protocol.TCP, port.getProtocol()))
+                    .map(port -> buildConsulService(service, port)))
         .filter(Objects::nonNull)
         .forEach(registry::register);
   }
 
-  private ConsulService buildConsulService(DockerService container, Integer port) {
+  private ConsulService buildConsulService(DockerService container, DockerService.Port port) {
     List<String> tags =
         container.getLabels().entrySet().stream()
             .filter(e -> e.getKey().startsWith(config.getConsulPrefix()))
@@ -46,8 +52,8 @@ public class Agent {
             .collect(Collectors.toList());
 
     if (!tags.isEmpty()) {
-      String serviceName = consulServiceName(container.getName(), port);
-      return new ConsulService(serviceName, container.getIp(), port, tags);
+      String serviceName = consulServiceName(container.getName(), port.getPort());
+      return new ConsulService(serviceName, container.getIp(), port.getPort(), tags);
     }
     return null;
   }

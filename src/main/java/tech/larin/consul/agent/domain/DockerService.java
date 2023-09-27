@@ -10,6 +10,24 @@ import lombok.RequiredArgsConstructor;
 public class DockerService {
   private final String name;
   private final String ip;
-  private final List<Integer> ports;
+  private final List<Port> ports;
   private final Map<String, String> labels;
+  private final State state;
+
+  @Getter
+  @RequiredArgsConstructor
+  public static class Port {
+    private final Integer port;
+    private final Protocol protocol;
+
+    public enum Protocol {
+      TCP,
+      UDP
+    }
+  }
+
+  public enum State {
+    EXITED,
+    RUNNING
+  }
 }

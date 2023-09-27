@@ -11,4 +11,16 @@ public class ConsulService {
   private final String ip;
   private final Integer port;
   private final List<String> tags;
+
+  @Getter
+  @RequiredArgsConstructor
+  public static class Port {
+    private final Integer port;
+    private final DockerService.Port.Protocol protocol;
+
+    public enum Protocol {
+      TCP,
+      UDP
+    }
+  }
 }
