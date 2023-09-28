@@ -45,6 +45,7 @@ public class Agent {
     List<ConsulService> consulServices =
         consulServiceMapper.map(dockerServices).stream()
             .filter(service -> Objects.equals(TCP, service.getProtocol()))
+            .filter(service -> Objects.nonNull(service.getPort()))
             .map(service -> service.filterTagsBy(config.getConsulPrefix()))
             .filter(not(service -> service.getTags().isEmpty()))
             .peek(service -> log.info("Registered consul service: {}", service))
