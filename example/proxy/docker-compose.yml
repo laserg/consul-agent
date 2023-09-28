@@ -24,8 +24,8 @@ services:
     depends_on:
       - consul
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.reverse.rule=Host(`localhost`)"
+      - consul.traefik.enable=true
+      - consul.traefik.http.routers.reverse.rule=Host(`localhost`)
     networks:
       - traefik_network
 

@@ -1,26 +1,36 @@
 package tech.larin.consul.agent.domain;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
-@RequiredArgsConstructor
 @Getter
+@ToString
+@RequiredArgsConstructor
 public class ConsulService {
   private final String name;
   private final String ip;
   private final Integer port;
+  private final Protocol protocol;
   private final List<String> tags;
 
-  @Getter
-  @RequiredArgsConstructor
-  public static class Port {
-    private final Integer port;
-    private final DockerService.Port.Protocol protocol;
+  public ConsulService filterTagsBy(String prefix) {
+    return new ConsulService(
+        name,
+        ip,
+        port,
+        protocol,
+        tags.stream()
+            .filter(tag -> tag.startsWith(prefix))
+            .map(tag -> tag.replaceFirst(prefix, ""))
+            .collect(Collectors.toList()));
+  }
 
-    public enum Protocol {
-      TCP,
-      UDP
-    }
+  @ToString
+  public enum Protocol {
+    TCP,
+    UDP
   }
 }
