@@ -1,6 +1,7 @@
 package tech.larin.consul.agent.service;
 
 import com.ecwid.consul.v1.agent.model.NewService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -16,13 +17,20 @@ public class Registry {
     NewService newService = new NewService();
     newService.setName(service.getName());
     newService.setAddress(service.getIp());
-    newService.setPort(service.getPort());
     newService.setTags(service.getTags());
 
-    NewService.Check httpCheck = new NewService.Check();
-    httpCheck.setTcp(service.getIp() + ":" + service.getPort());
-    httpCheck.setInterval("10s");
-    newService.setCheck(httpCheck);
+    List<NewService.Check> checks =
+        service.getPorts().stream()
+            .map(
+                port -> {
+                  NewService.Check check = new NewService.Check();
+                  check.setTcp(service.getIp() + ":" + port);
+                  check.setInterval("3s");
+                  return check;
+                })
+            .toList();
+
+    newService.setChecks(checks);
 
     consulClient.agentServiceRegister(newService);
   }

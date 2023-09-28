@@ -1,7 +1,5 @@
 package tech.larin.consul.agent.domain;
 
-import static java.util.stream.Collectors.toList;
-
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -10,31 +8,11 @@ import lombok.ToString;
 
 @Getter
 @ToString
-@EqualsAndHashCode(of = {"name", "ip", "port", "protocol"})
+@EqualsAndHashCode(of = {"name", "ip"})
 @RequiredArgsConstructor
 public class ConsulService {
   private final String name;
   private final String ip;
-  private final Integer port;
-  private final Protocol protocol;
+  private final List<Integer> ports;
   private final List<String> tags;
-
-  public ConsulService withTagsFilteredBy(String prefix) {
-    List<String> selectedTags =
-        tags.stream()
-            .filter(tag -> tag.startsWith(prefix))
-            .map(tag -> tag.replaceFirst(prefix, ""))
-            .collect(toList());
-    return new ConsulService(name, ip, port, protocol, selectedTags);
-  }
-
-  public ConsulService withIp(String ip) {
-    return new ConsulService(name, ip, port, protocol, tags);
-  }
-
-  @ToString
-  public enum Protocol {
-    TCP,
-    UDP
-  }
 }

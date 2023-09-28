@@ -1,12 +1,10 @@
 package tech.larin.consul.agent.service;
 
-import static java.util.function.Predicate.not;
-import static java.util.stream.Collectors.toSet;
-import static tech.larin.consul.agent.domain.ConsulService.Protocol.TCP;
+import static tech.larin.consul.agent.domain.DockerService.Port.Protocol.TCP;
 import static tech.larin.consul.agent.domain.DockerService.State.RUNNING;
 
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -17,7 +15,6 @@ import org.springframework.stereotype.Component;
 import tech.larin.consul.agent.configuration.AgentConfigurationProperties;
 import tech.larin.consul.agent.domain.ConsulService;
 import tech.larin.consul.agent.domain.DockerService;
-import tech.larin.consul.agent.mapper.ConsulServiceMapper;
 
 @Slf4j
 @Component
@@ -28,8 +25,6 @@ public class Agent {
   private final Discovery discovery;
   private final Registry registry;
 
-  private final ConsulServiceMapper consulServiceMapper;
-
   @PostConstruct
   public void run() {
     ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
@@ -38,21 +33,44 @@ public class Agent {
   }
 
   private void registerServicesWithConsul() {
-    Set<DockerService> dockerServices =
-        discovery.services().stream()
-            .filter(service -> Objects.equals(RUNNING, service.getState()))
-            .peek(service -> log.info("Discovered docker service: {}", service))
-            .collect(toSet());
-    Set<ConsulService> consulServices =
-        consulServiceMapper.map(dockerServices).stream()
-            .filter(not(service -> Objects.equals("::", service.getIp())))
-            .filter(service -> Objects.nonNull(service.getPort()))
-            .filter(service -> Objects.equals(TCP, service.getProtocol()))
-            .map(service -> service.withTagsFilteredBy(config.getConsulPrefix()))
-            .filter(not(service -> service.getTags().isEmpty()))
-            .map(service -> service.withIp(config.getBindIp()))
-            .peek(service -> log.info("Registered consul service: {}", service))
-            .collect(toSet());
-    consulServices.forEach(registry::register);
+    discovery.services().stream()
+        .filter(service -> Objects.equals(RUNNING, service.getState()))
+        .peek(service -> log.info("Discovered docker service: {}", service))
+        .map(
+            service -> {
+              List<Integer> ports = getPorts(service);
+              List<String> tags = getTags(service);
+              String name = getName(service);
+              String ip = config.getBindIp();
+              return new ConsulService(name, ip, ports, tags);
+            })
+        .forEach(registry::register);
+  }
+
+  private static String getName(DockerService service) {
+    return service
+        .getName()
+        .replaceAll("[^a-zA-Z0-9-]", "-")
+        .replaceAll("^[^a-zA-Z0-9]+", "")
+        .replaceAll("[^a-zA-Z0-9]+$", "");
+  }
+
+  private List<String> getTags(DockerService service) {
+    return service.getLabels().entrySet().stream()
+        .map(e -> e.getKey() + "=" + e.getValue())
+        .filter(tag -> tag.startsWith(config.getConsulPrefix()))
+        .map(tag -> tag.replaceFirst(config.getConsulPrefix(), ""))
+        .toList();
+  }
+
+  private static List<Integer> getPorts(DockerService service) {
+    return service.getPorts().stream()
+        .filter(
+            port ->
+                !Objects.equals("::", port.getIp())
+                    && Objects.equals(TCP, port.getProtocol())
+                    && Objects.nonNull(port.getPort()))
+        .map(DockerService.Port::getPort)
+        .toList();
   }
 }
