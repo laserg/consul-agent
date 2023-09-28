@@ -9,7 +9,7 @@ import lombok.ToString;
 
 @Getter
 @ToString
-@EqualsAndHashCode
+@EqualsAndHashCode(of = {"name", "ip"})
 @RequiredArgsConstructor
 public class DockerService {
   private final String name;
@@ -20,7 +20,6 @@ public class DockerService {
 
   @Getter
   @ToString
-  @EqualsAndHashCode
   @RequiredArgsConstructor
   public static class Port {
     private final Integer port;

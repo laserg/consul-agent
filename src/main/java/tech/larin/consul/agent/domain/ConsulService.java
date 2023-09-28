@@ -9,7 +9,7 @@ import lombok.ToString;
 
 @Getter
 @ToString
-@EqualsAndHashCode
+@EqualsAndHashCode(of = {"name", "ip", "port", "protocol"})
 @RequiredArgsConstructor
 public class ConsulService {
   private final String name;
