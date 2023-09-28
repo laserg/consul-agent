@@ -42,8 +42,13 @@ public class Agent {
               List<String> tags = getTags(service);
               String name = getName(service);
               String ip = config.getBindIp();
-              return new ConsulService(name, ip, ports, tags);
+              if (!tags.isEmpty()) {
+                return new ConsulService(name, ip, ports, tags);
+              } else {
+                return null;
+              }
             })
+        .filter(Objects::nonNull)
         .forEach(registry::register);
   }
 
