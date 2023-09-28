@@ -41,6 +41,7 @@ public class Agent {
     Set<DockerService> dockerServices =
         discovery.services().stream()
             .filter(service -> Objects.equals(RUNNING, service.getState()))
+            .map(DockerService::filterPortsWithIps)
             .peek(service -> log.info("Discovered docker service: {}", service))
             .collect(toSet());
     Set<ConsulService> consulServices =

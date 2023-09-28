@@ -35,7 +35,7 @@ public interface DockerServiceMapper {
                     default -> null;
                   };
 
-              return new Port(port.getPublicPort(), protocol);
+              return new Port(port.getIp(), port.getPublicPort(), protocol);
             })
         .collect(Collectors.toList());
   }
