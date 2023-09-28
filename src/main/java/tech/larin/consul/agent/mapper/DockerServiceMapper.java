@@ -1,12 +1,12 @@
 package tech.larin.consul.agent.mapper;
 
+import static java.util.stream.Collectors.toSet;
 import static tech.larin.consul.agent.domain.DockerService.*;
 
 import com.github.dockerjava.api.model.Container;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.Set;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import tech.larin.consul.agent.domain.DockerService;
@@ -24,7 +24,7 @@ public interface DockerServiceMapper {
     return container.getNames()[0];
   }
 
-  default List<Port> mapContainerPorts(Container container) {
+  default Set<Port> mapContainerPorts(Container container) {
     return Arrays.stream(container.ports)
         .map(
             port -> {
@@ -37,7 +37,7 @@ public interface DockerServiceMapper {
 
               return new Port(port.getIp(), port.getPublicPort(), protocol);
             })
-        .collect(Collectors.toList());
+        .collect(toSet());
   }
 
   default State mapState(Container container) {
