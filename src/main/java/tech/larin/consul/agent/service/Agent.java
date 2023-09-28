@@ -41,13 +41,13 @@ public class Agent {
     Set<DockerService> dockerServices =
         discovery.services().stream()
             .filter(service -> Objects.equals(RUNNING, service.getState()))
-            .map(DockerService::filterPortsWithIps)
             .peek(service -> log.info("Discovered docker service: {}", service))
             .collect(toSet());
     Set<ConsulService> consulServices =
         consulServiceMapper.map(dockerServices).stream()
-            .filter(service -> Objects.equals(TCP, service.getProtocol()))
+            .filter(not(service -> Objects.equals("::", service.getIp())))
             .filter(service -> Objects.nonNull(service.getPort()))
+            .filter(service -> Objects.equals(TCP, service.getProtocol()))
             .map(service -> service.filterTagsBy(config.getConsulPrefix()))
             .filter(not(service -> service.getTags().isEmpty()))
             .peek(service -> log.info("Registered consul service: {}", service))

@@ -26,7 +26,7 @@ public interface ConsulServiceMapper {
               String name = consulServiceName(dockerService.getName(), port.getPort());
               ConsulService.Protocol protocol = mapProtocol(port.getProtocol());
               List<String> tags = convertLabelsToTags(dockerService.getLabels());
-              return new ConsulService(name, dockerService.getIp(), port.getPort(), protocol, tags);
+              return new ConsulService(name, port.getIp(), port.getPort(), protocol, tags);
             })
         .collect(Collectors.toList());
   }
