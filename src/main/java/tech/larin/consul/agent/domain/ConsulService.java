@@ -1,7 +1,8 @@
 package tech.larin.consul.agent.domain;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +28,7 @@ public class ConsulService {
         tags.stream()
             .filter(tag -> tag.startsWith(prefix))
             .map(tag -> tag.replaceFirst(prefix, ""))
-            .collect(Collectors.toList()));
+            .collect(toList()));
   }
 
   @ToString
