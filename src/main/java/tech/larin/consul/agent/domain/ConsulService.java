@@ -20,15 +20,12 @@ public class ConsulService {
   private final List<String> tags;
 
   public ConsulService withTagsFilteredBy(String prefix) {
-    return new ConsulService(
-        name,
-        ip,
-        port,
-        protocol,
+    List<String> selectedTags =
         tags.stream()
             .filter(tag -> tag.startsWith(prefix))
             .map(tag -> tag.replaceFirst(prefix, ""))
-            .collect(toList()));
+            .collect(toList());
+    return new ConsulService(name, ip, port, protocol, selectedTags);
   }
 
   public ConsulService withIp(String ip) {
