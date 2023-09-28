@@ -32,12 +32,7 @@ public class ConsulService {
   }
 
   public ConsulService withIp(String ip) {
-    return new ConsulService(
-        name,
-        ip,
-        port,
-        protocol,
-        tags);
+    return new ConsulService(name, ip, port, protocol, tags);
   }
 
   @ToString
