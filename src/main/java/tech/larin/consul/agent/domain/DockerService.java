@@ -2,12 +2,14 @@ package tech.larin.consul.agent.domain;
 
 import java.util.List;
 import java.util.Map;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 @Getter
 @ToString
+@EqualsAndHashCode
 @RequiredArgsConstructor
 public class DockerService {
   private final String name;
@@ -18,6 +20,7 @@ public class DockerService {
 
   @Getter
   @ToString
+  @EqualsAndHashCode
   @RequiredArgsConstructor
   public static class Port {
     private final Integer port;
@@ -30,6 +33,7 @@ public class DockerService {
     }
   }
 
+  @ToString
   public enum State {
     EXITED,
     RUNNING

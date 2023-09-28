@@ -1,11 +1,12 @@
 package tech.larin.consul.agent.service;
 
 import static java.util.function.Predicate.not;
+import static java.util.stream.Collectors.toSet;
 import static tech.larin.consul.agent.domain.ConsulService.Protocol.TCP;
 import static tech.larin.consul.agent.domain.DockerService.State.RUNNING;
 
-import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -37,19 +38,19 @@ public class Agent {
   }
 
   private void registerServicesWithConsul() {
-    List<DockerService> dockerServices =
+    Set<DockerService> dockerServices =
         discovery.services().stream()
             .filter(service -> Objects.equals(RUNNING, service.getState()))
             .peek(service -> log.info("Discovered docker service: {}", service))
-            .toList();
-    List<ConsulService> consulServices =
+            .collect(toSet());
+    Set<ConsulService> consulServices =
         consulServiceMapper.map(dockerServices).stream()
             .filter(service -> Objects.equals(TCP, service.getProtocol()))
             .filter(service -> Objects.nonNull(service.getPort()))
             .map(service -> service.filterTagsBy(config.getConsulPrefix()))
             .filter(not(service -> service.getTags().isEmpty()))
             .peek(service -> log.info("Registered consul service: {}", service))
-            .toList();
+            .collect(toSet());
     consulServices.forEach(registry::register);
   }
 }

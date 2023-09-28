@@ -3,6 +3,7 @@ package tech.larin.consul.agent.mapper;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.mapstruct.Mapper;
 import tech.larin.consul.agent.domain.ConsulService;
@@ -11,7 +12,7 @@ import tech.larin.consul.agent.domain.DockerService;
 @Mapper
 public interface ConsulServiceMapper {
 
-  default List<ConsulService> map(List<DockerService> dockerServices) {
+  default List<ConsulService> map(Set<DockerService> dockerServices) {
     return dockerServices.stream()
         .map(this::map)
         .flatMap(Collection::stream)
