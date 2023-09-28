@@ -48,8 +48,9 @@ public class Agent {
             .filter(not(service -> Objects.equals("::", service.getIp())))
             .filter(service -> Objects.nonNull(service.getPort()))
             .filter(service -> Objects.equals(TCP, service.getProtocol()))
-            .map(service -> service.filterTagsBy(config.getConsulPrefix()))
+            .map(service -> service.withTagsFilteredBy(config.getConsulPrefix()))
             .filter(not(service -> service.getTags().isEmpty()))
+            .map(service -> service.withIp(config.getBindIp()))
             .peek(service -> log.info("Registered consul service: {}", service))
             .collect(toSet());
     consulServices.forEach(registry::register);

@@ -19,7 +19,7 @@ public class ConsulService {
   private final Protocol protocol;
   private final List<String> tags;
 
-  public ConsulService filterTagsBy(String prefix) {
+  public ConsulService withTagsFilteredBy(String prefix) {
     return new ConsulService(
         name,
         ip,
@@ -29,6 +29,15 @@ public class ConsulService {
             .filter(tag -> tag.startsWith(prefix))
             .map(tag -> tag.replaceFirst(prefix, ""))
             .collect(toList()));
+  }
+
+  public ConsulService withIp(String ip) {
+    return new ConsulService(
+        name,
+        ip,
+        port,
+        protocol,
+        tags);
   }
 
   @ToString
