@@ -5,12 +5,14 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import tech.larin.consul.agent.configuration.AgentConfigurationProperties;
 import tech.larin.consul.agent.domain.ConsulService;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class Registry {
+  private final AgentConfigurationProperties config;
   private final com.ecwid.consul.v1.ConsulClient consulClient;
 
   public void register(ConsulService service) {
@@ -32,6 +34,6 @@ public class Registry {
 
     newService.setChecks(checks);
 
-    consulClient.agentServiceRegister(newService);
+    consulClient.agentServiceRegister(newService, config.getConsulToken());
   }
 }

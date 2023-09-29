@@ -10,6 +10,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class AgentConfigurationProperties {
   private int pollingInterval;
   private String consulHost;
+  private String consulToken;
   private String consulPrefix;
   private String dockerHost;
   private String bindIp;
