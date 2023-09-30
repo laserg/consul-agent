@@ -70,3 +70,6 @@ This variable specifies the IP address that the Consul agent should bind service
 
 This environment variable specifies the prefix that will be used for detect labels should be converted to Consul tags.
 
+### AGENT_CONSUL_TOKEN
+
+This environment variable specifies the consul token used for auth.

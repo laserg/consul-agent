@@ -2,7 +2,9 @@ version: '3'
 services:
   consul:
     image: consul:1.15.4
-    command: consul agent -server -dev -client=0.0.0.0 -ui -bootstrap -log-level warn
+    command: consul agent -server -dev -client=0.0.0.0 -ui -bootstrap -log-level warn -config-file=/consul-config/acl.hcl
+    volumes:
+      - ./consul/acl.hcl:/consul-config/acl.hcl
     ports:
       - "8400:8400"
       - "8500:8500"
@@ -14,6 +16,7 @@ services:
     image: traefik:v2.5
     command:
       - "--providers.consulCatalog.endpoint.address=consul:8500"
+      - "--providers.consulCatalog.endpoint.token=856dde46_d77d_4115_b0da_b521751faa79"
       - "--providers.consulCatalog.exposedByDefault=false"
       - "--providers.consulCatalog.prefix=traefik"
       - "--entrypoints.http.address=:80"
@@ -37,6 +40,7 @@ services:
     environment:
       - AGENT_DOCKER_HOST=unix:///var/run/docker.sock
       - AGENT_CONSUL_HOST=consul://${PROXY_SERVER_IP}:8500
+      - AGENT_CONSUL_TOKEN=856dde46_d77d_4115_b0da_b521751faa79
       - AGENT_POLLING_INTERVAL=60
       - AGENT_BIND_IP=${PROXY_SERVER_IP}
       - AGENT_CONSUL_PREFIX=consul.

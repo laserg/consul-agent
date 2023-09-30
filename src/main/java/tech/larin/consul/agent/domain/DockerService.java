@@ -17,6 +17,10 @@ public class DockerService {
   private final Map<String, String> labels;
   private final State state;
 
+  public String getLabel(String label) {
+    return labels.getOrDefault(label, "");
+  }
+
   @Getter
   @ToString
   @EqualsAndHashCode(of = {"ip", "port", "protocol"})
