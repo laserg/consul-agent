@@ -9,10 +9,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -29,8 +31,15 @@ public class Agent {
   private final Discovery discovery;
   private final Registry registry;
 
+  private final UUID agentUid = UUID.randomUUID();
+
+  @PreDestroy
+  public void scheduleUnDiscovery() {
+    registry.unregisterAllWith(agentUid);
+  }
+
   @PostConstruct
-  public void run() {
+  public void scheduleDiscovery() {
     ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
     executor.scheduleAtFixedRate(
         this::registerServicesWithConsul, 0, config.getPollingInterval(), TimeUnit.SECONDS);
@@ -54,7 +63,7 @@ public class Agent {
             })
         .filter(Objects::nonNull)
         .peek(service -> log.info("Registered docker service: {}", service))
-        .forEach(registry::register);
+        .forEach(service -> registry.registerWith(service, agentUid));
   }
 
   private Set<Integer> getIgnoredPorts(DockerService service) {

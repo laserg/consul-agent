@@ -27,8 +27,8 @@ services:
     depends_on:
       - consul
     labels:
-      - consul.traefik.enable=true
-      - consul.traefik.http.routers.reverse.rule=Host(`localhost`)
+      - proxy.traefik.enable=true
+      - proxy.traefik.http.routers.reverse.rule=Host(`localhost`)
     networks:
       - traefik_network
 
@@ -37,13 +37,16 @@ services:
       context: ../../
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "5005:5005"
     environment:
+      - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
       - AGENT_DOCKER_HOST=unix:///var/run/docker.sock
       - AGENT_CONSUL_HOST=consul://${PROXY_SERVER_IP}:8500
       - AGENT_CONSUL_TOKEN=856dde46_d77d_4115_b0da_b521751faa79
       - AGENT_POLLING_INTERVAL=60
       - AGENT_BIND_IP=${PROXY_SERVER_IP}
-      - AGENT_CONSUL_PREFIX=consul.
+      - AGENT_CONSUL_PREFIX=proxy.
     networks:
       - traefik_network
 
@@ -51,10 +54,13 @@ services:
     image: crccheck/hello-world
     ports:
       - "8000:8000"
+      - "8001:8001"
+      - "8002:8002"
     labels:
-      - consul.traefik.enable=true
-      - consul.traefik.http.services.web-service0.loadbalancer.server.port=8000
-      - consul.traefik.http.routers.web-service0.rule=Host(`localhost0`) && PathPrefix(`/`)
+      - proxy.traefik.enable=true
+      - proxy.traefik.http.services.web-service0.loadbalancer.server.port=8000
+      - proxy.traefik.http.routers.web-service0.rule=Host(`localhost0`) && PathPrefix(`/`)
+      - consul.ignore.ports=8001,8002
     networks:
       - traefik_network
 
