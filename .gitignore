@@ -1,3 +1,7 @@
+### Docker template
+# Env file
+*.env
+
 ### Java template
 # Compiled class file
 *.class
