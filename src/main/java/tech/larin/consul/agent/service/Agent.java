@@ -17,6 +17,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Component;
 import tech.larin.consul.agent.configuration.AgentConfigurationProperties;
 import tech.larin.consul.agent.domain.ConsulService;
@@ -68,7 +69,10 @@ public class Agent {
 
   private Set<Integer> getIgnoredPorts(DockerService service) {
     String ignoredPortsLabel = service.getLabel("consul.ignore.ports");
-    return Arrays.stream(ignoredPortsLabel.split(",")).map(Integer::parseInt).collect(toSet());
+    return Arrays.stream(ignoredPortsLabel.split(","))
+        .filter(Strings::isNotBlank)
+        .map(Integer::parseInt)
+        .collect(toSet());
   }
 
   private static String getName(DockerService service) {
