@@ -68,7 +68,7 @@ public class Agent {
   }
 
   private Set<Integer> getIgnoredPorts(DockerService service) {
-    String ignoredPortsLabel = service.getLabel("consul.ignore.ports");
+    String ignoredPortsLabel = service.getLabel("consul.ports.ignore");
     return Arrays.stream(ignoredPortsLabel.split(","))
         .filter(Strings::isNotBlank)
         .map(Integer::parseInt)

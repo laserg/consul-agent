@@ -60,7 +60,7 @@ services:
       - proxy.traefik.enable=true
       - proxy.traefik.http.services.web-service0.loadbalancer.server.port=8000
       - proxy.traefik.http.routers.web-service0.rule=Host(`localhost0`) && PathPrefix(`/`)
-      - consul.ignore.ports=8001,8002
+      - consul.ports.ignore=8001,8002
     networks:
       - traefik_network
 
