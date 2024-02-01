@@ -32,35 +32,35 @@ services:
     networks:
       - traefik_network
 
-  registrator:
-    build:
-      context: ../../
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    ports:
-      - "5005:5005"
-    environment:
-      - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
-      - AGENT_DOCKER_HOST=unix:///var/run/docker.sock
-      - AGENT_CONSUL_HOST=consul://${PROXY_SERVER_IP}:8500
-      - AGENT_CONSUL_TOKEN=856dde46_d77d_4115_b0da_b521751faa79
-      - AGENT_POLLING_INTERVAL=60
-      - AGENT_BIND_IP=${PROXY_SERVER_IP}
-      - AGENT_CONSUL_PREFIX=proxy.
-    networks:
-      - traefik_network
+#  registrator:
+#    build:
+#      context: ../../../../
+#    volumes:
+#      - /var/run/docker.sock:/var/run/docker.sock
+#    ports:
+#      - "5005:5005"
+#    environment:
+#      - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+#      - AGENT_DOCKER_HOST=unix:///var/run/docker.sock
+#      - AGENT_CONSUL_HOST=consul://${PROXY_SERVER_IP}:8500
+#      - AGENT_CONSUL_TOKEN=856dde46_d77d_4115_b0da_b521751faa79
+#      - AGENT_POLLING_INTERVAL=60
+#      - AGENT_BIND_IP=${PROXY_SERVER_IP}
+#      - AGENT_CONSUL_PREFIX=proxy.
+#    networks:
+#      - traefik_network
 
   web-server:
     image: crccheck/hello-world
     ports:
       - "8000:8000"
-      - "8001:8001"
       - "8002:8002"
+      - "8003:8003"
     labels:
       - proxy.traefik.enable=true
       - proxy.traefik.http.services.web-service0.loadbalancer.server.port=8000
       - proxy.traefik.http.routers.web-service0.rule=Host(`localhost0`) && PathPrefix(`/`)
-      - consul.ports.ignore=8001,8002
+      - consul.ports.ignore=8001,8002,8003
     networks:
       - traefik_network
 

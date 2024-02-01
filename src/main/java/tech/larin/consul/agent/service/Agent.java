@@ -5,6 +5,8 @@ import static tech.larin.consul.agent.domain.DockerService.Port.Protocol.TCP;
 import static tech.larin.consul.agent.domain.DockerService.State.RUNNING;
 
 import com.google.common.collect.Sets;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -13,9 +15,6 @@ import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
